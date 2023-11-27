@@ -20,16 +20,33 @@ namespace MedMartExpressApp.Controllers
         public Response register(User user)
         {
             AppDbMangar _dbmang = new AppDbMangar();
-            SqlConnection conn = new SqlConnection(_configuration.GetConnectionString("EMedCS").ToString());
+            SqlConnection conn = new SqlConnection(_configuration.GetConnectionString("MedMartCS").ToString());
             return _dbmang.register(user, conn);
         }
-        [HttpPost]
+        [HttpGet]
         [Route("login")]
         public Response login(User user)
         {
             AppDbMangar _dbmang = new AppDbMangar();
-            SqlConnection conn = new SqlConnection(_configuration.GetConnectionString("EMedCS").ToString());
+            SqlConnection conn = new SqlConnection(_configuration.GetConnectionString("MedMartCS").ToString());
             return _dbmang.Login(user, conn);
+        }
+        [HttpGet]
+        [Route("viewProfile")]
+        public Response viewProfile(User user)
+        {
+            AppDbMangar _dbmang = new AppDbMangar();
+            SqlConnection conn = new SqlConnection(_configuration.GetConnectionString("MedMartCS").ToString());
+            return _dbmang.viewProfile(user, conn);
+        }
+
+        [HttpPost]
+        [Route("editProfile")]
+        public Response editProfile(User user)
+        {
+            AppDbMangar _dbmang = new AppDbMangar();
+            SqlConnection conn = new SqlConnection(_configuration.GetConnectionString("MedMartCS").ToString());
+            return _dbmang.editProfile(user, conn);
         }
     }
 }
