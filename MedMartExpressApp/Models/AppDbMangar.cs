@@ -106,7 +106,7 @@ namespace MedMartExpressApp.Models
             conn.Open();
             int check = cmd.ExecuteNonQuery();
             conn.Close();
-            if(check >1)
+            if (check > 1)
             {
                 res.StatusMessage = "200";
                 res.StatusMessage = "Profile is Edited successfully!";
@@ -117,6 +117,86 @@ namespace MedMartExpressApp.Models
                 res.StatusMessage = "Failed to Edit Profile!";
             }
             return res;
+        }
+        public Response addToCart(Cart cart, SqlConnection conn)
+        {
+            Response response = new Response();
+            SqlCommand cmd = new SqlCommand("sp_addToCart", conn);
+            cmd.CommandType = CommandType.StoredProcedure;
+            cmd.Parameters.AddWithValue("@userId", cart.userId);
+            cmd.Parameters.AddWithValue("@UnitPrice", cart.UnitPrice);
+            cmd.Parameters.AddWithValue("@Discount", cart.Discount);
+            cmd.Parameters.AddWithValue("@quantity", cart.quantity);
+            cmd.Parameters.AddWithValue("@TotPrice", cart.TotPrice);
+            cmd.Parameters.AddWithValue("@MedId", cart.MedId);
+            conn.Open();
+            int check =  cmd.ExecuteNonQuery();
+            conn.Close();
+            if (check > 0)
+            {
+                response.StatusCode = 200;
+                response.StatusMessage = "Item addedd successfully";
+            }
+            else
+            {
+                response.StatusCode = 100;
+                response.StatusMessage = "Item could not be added";
+            }
+            return response;
+        }
+        public Response placeOrder(User user, SqlConnection conn)
+        {
+            Response response = new Response();
+            SqlCommand cmd = new SqlCommand("sp_placeOrder", conn);
+            cmd.CommandType= CommandType.StoredProcedure;
+            cmd.Parameters.AddWithValue(@"id", user.id);
+            conn.Open();
+            int check = cmd.ExecuteNonQuery();
+            conn.Close();
+            if (check > 0)
+            {
+                response.StatusCode = 200;
+                response.StatusMessage = "Order is placed successfully";
+            }
+            else
+            {
+                response.StatusCode = 100;
+                response.StatusMessage = "Failed to place the order";
+            }
+            return response;
+        }
+        public Response viewOrders(User user, SqlConnection conn)
+        {
+            Response response = new Response();
+            List<Order> Userorders = new List<Order>();
+            SqlDataAdapter adapter = new SqlDataAdapter("sp_viewOrders", conn);
+            adapter.SelectCommand.CommandType = CommandType.StoredProcedure;
+            adapter.SelectCommand.Parameters.AddWithValue(@"Type", user.Type);
+            adapter.SelectCommand.Parameters.AddWithValue(@"id", user.id);
+            DataTable dt = new DataTable();
+            adapter.Fill(dt);
+            if (dt.Rows.Count > 0)
+            {
+                for (int i = 0; i < dt.Rows.Count; i++)
+                {
+                    Order order = new Order();
+                    order.id = Convert.ToInt32(dt.Rows[i]["id"]);
+                    order.OrderNO = Convert.ToString(dt.Rows[i]["OrderNO"]);
+                    order.OrderTotal = Convert.ToDecimal(dt.Rows[i]["OrderTotal"]);
+                    order.OrderStatus = Convert.ToString(dt.Rows[i]["OrderStatus"]);
+                    Userorders.Add(order);
+                }
+                response.listOfOrders = Userorders;
+                response.StatusCode = 200;
+                response.StatusMessage = "orders details fetched";
+            }
+            else
+            {
+                response.listOfOrders = null;
+                response.StatusCode = 100;
+                response.StatusMessage = "no orders found!";
+            }
+            return response;
         }
     }
 }
