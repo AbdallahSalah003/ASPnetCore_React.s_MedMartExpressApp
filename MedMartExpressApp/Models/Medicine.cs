@@ -11,5 +11,6 @@
         public DateTime Expdate { get; set; }
         public string ImageUrl { get; set; }
         public int status { get; set; }
+        public string Type { get; set; }
     }
 }

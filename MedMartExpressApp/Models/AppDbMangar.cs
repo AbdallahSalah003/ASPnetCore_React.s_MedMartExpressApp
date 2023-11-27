@@ -198,5 +198,73 @@ namespace MedMartExpressApp.Models
             }
             return response;
         }
+        public Response addUpdateMedicine(Medicine medicine, SqlConnection con)
+        {
+            Response response = new Response();
+            SqlCommand cmd = new SqlCommand("sp_addUpdateMedicine", con);
+            cmd.CommandType = CommandType.StoredProcedure;
+            cmd.Parameters.AddWithValue("@Name", medicine.Medname);
+            cmd.Parameters.AddWithValue("@Manufacturer", medicine.Manufacutrur);
+            cmd.Parameters.AddWithValue("@UnitPrice", medicine.unitPrice);
+            cmd.Parameters.AddWithValue("@Discount", medicine.Discount);
+            cmd.Parameters.AddWithValue("@Quantity", medicine.quantity);
+            cmd.Parameters.AddWithValue("@ExpDate", medicine.Expdate);
+            cmd.Parameters.AddWithValue("@ImageUrl", medicine.ImageUrl);
+            cmd.Parameters.AddWithValue("@Status", medicine.status);
+            cmd.Parameters.AddWithValue("@Type", medicine.Type);
+            con.Open();
+            int check = cmd.ExecuteNonQuery();
+            con.Close();
+            if (check > 0)
+            {
+                response.medicine = medicine;
+                response.StatusCode = 200;
+                response.StatusMessage = "Medicine is Updayed successfully";
+            }
+            else
+            {
+                response.medicine = null;
+                response.StatusCode = 100;
+                response.StatusMessage = "Failed to update Medicine";
+            }
+            return response;
+        }
+
+        public Response allUsers(SqlConnection conn)
+        {
+            Response response = new Response();
+            List<User> users = new List<User>();
+            SqlDataAdapter adapter = new SqlDataAdapter("sp_allUsers", conn);
+            adapter.SelectCommand.CommandType = CommandType.StoredProcedure;
+            DataTable dt = new DataTable();
+            adapter.Fill(dt);
+            if (dt.Rows.Count > 0)
+            {
+                for (int i = 0; i < dt.Rows.Count; i++)
+                {
+                    User usr = new User();
+                    usr.id = Convert.ToInt32(dt.Rows[i]["id"]);
+                    usr.Fname = Convert.ToString(dt.Rows[i]["Fname"]);
+                    usr.Lname = Convert.ToString(dt.Rows[i]["Lname"]);
+                    usr.Password = Convert.ToString(dt.Rows[i]["Password"]);
+                    usr.email = Convert.ToString(dt.Rows[i]["email"]);
+                    usr.Fund = Convert.ToDecimal(dt.Rows[i]["Fund"]);
+                    usr.Type = Convert.ToString(dt.Rows[i]["Type"]);
+                    usr.status = Convert.ToInt32(dt.Rows[i]["status"]);
+                    usr.createdon = Convert.ToDateTime(dt.Rows[i]["createdon"]);
+                    users.Add(usr);
+                }
+                response.listOfUsers = users;
+                response.StatusCode = 200;
+                response.StatusMessage = "Users info fetched";
+            }
+            else
+            {
+                response.listOfUsers = null;
+                response.StatusCode = 100;
+                response.StatusMessage = "no Users found!";
+            }
+            return response;
+        }
     }
 }
